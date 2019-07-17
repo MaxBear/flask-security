@@ -75,6 +75,8 @@ def login_user(user, remember=None):
         user.last_login_ip = old_current_ip or new_current_ip
         user.current_login_ip = new_current_ip
         user.login_count = user.login_count + 1 if user.login_count else 1
+        # reset failed login count
+        user.failed_login_count = 0 
 
         _datastore.put(user)
 
@@ -82,6 +84,9 @@ def login_user(user, remember=None):
                           identity=Identity(user.id))
     return True
 
+def failed_login(user):
+    user.failed_login_count += 1 
+    res = _datastore.put(user)
 
 def logout_user():
     """Logs out the current. This will also clean up the remember me cookie if it exists."""

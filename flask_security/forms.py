@@ -21,6 +21,9 @@ from werkzeug.local import LocalProxy
 from .confirmable import requires_confirmation
 from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
 
+# const
+MAX_FAILED_LOGIN_COUNT = 5
+
 # Convenient reference
 _datastore = LocalProxy(lambda: current_app.extensions['security'].datastore)
 
@@ -223,14 +226,16 @@ class LoginForm(Form, NextFormMixin):
             self.email.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
             return False
 
-        if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
-            return False
-
         self.user = _datastore.get_user(self.email.data)
 
         if self.user is None:
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            return False
+        if self.user.failed_login_count >= MAX_FAILED_LOGIN_COUNT - 1:
+            self.password.errors.append(get_message('TOO_MANY_FAILED_LOGINS')[0])
+            return False
+        if self.password.data.strip() == '':
+            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])

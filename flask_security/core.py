@@ -172,6 +172,8 @@ _default_messages = {
         'Please log in to access this page.', 'info'),
     'REFRESH': (
         'Please reauthenticate to access this page.', 'info'),
+    'TOO_MANY_FAILED_LOGINS': (
+        'Too many failed logins, please email support@qos.vc to unlock account.', 'error'),
 }
 
 _default_forms = {

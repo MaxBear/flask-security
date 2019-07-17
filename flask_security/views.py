@@ -27,6 +27,7 @@ from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
     url_for_security as url_for
+from .utils import failed_login
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -78,6 +79,13 @@ def login():
 
         if not request.json:
             return redirect(get_post_login_redirect(form.next.data))
+    else:
+       try:
+          failed_login(form.user)
+          after_this_request(_commit)
+       except AttributeError:
+          # user exists in database
+          pass
 
     if request.json:
         return _render_json(form, include_auth_token=True)
