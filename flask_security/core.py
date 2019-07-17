@@ -12,7 +12,7 @@
 from flask import current_app, render_template
 from flask_login import AnonymousUserMixin, UserMixin as BaseUserMixin, \
     LoginManager, current_user
-from flask.ext.principal import Principal, RoleNeed, UserNeed, Identity, \
+from flask_principal import Principal, RoleNeed, UserNeed, Identity, \
     identity_loaded
 from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
