@@ -18,7 +18,7 @@ except ImportError:
 import re
 
 from flask import current_app
-from flask.ext.script import Command, Option
+from flask_script import Command, Option
 from werkzeug.local import LocalProxy
 
 from .utils import encrypt_password
