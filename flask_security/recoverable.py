@@ -14,7 +14,7 @@ from werkzeug.local import LocalProxy
 
 from .signals import password_reset, reset_password_instructions_sent
 from .utils import send_mail, md5, encrypt_password, url_for_security, \
-    get_token_status, config_value
+    get_token_status, config_value 
 
 
 # Convenient references

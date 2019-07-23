@@ -21,12 +21,12 @@ from .decorators import login_required, anonymous_user_required
 from .passwordless import send_login_instructions, \
     login_token_status
 from .recoverable import reset_password_token_status, \
-    send_reset_password_instructions, update_password
+    send_reset_password_instructions, update_password 
 from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
     get_post_register_redirect, get_message, login_user, logout_user, \
-    url_for_security as url_for
+    url_for_security as url_for, verify_password
 from .utils import failed_login
 
 # Convenient references
@@ -249,6 +249,8 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
+    from smtplib import SMTPAuthenticationError
+
     form_class = _security.forgot_password_form
 
     if request.json:
@@ -257,9 +259,13 @@ def forgot_password():
         form = form_class()
 
     if form.validate_on_submit():
-        send_reset_password_instructions(form.user)
-        if request.json is None:
-            do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+        try:
+           send_reset_password_instructions(form.user)
+           if request.json is None:
+               do_flash(*get_message('PASSWORD_RESET_REQUEST', email=form.user.email))
+        except SMTPAuthenticationError:
+           if request.json is None:
+               do_flash(*get_message('FAILD_TO_SEND_PASSWORD_RESET_EMAIL', email=form.user.email))
 
     if request.json:
         return _render_json(form, include_user=False)
@@ -285,13 +291,18 @@ def reset_password(token):
 
     form = _security.reset_password_form()
 
-    if form.validate_on_submit():
-        after_this_request(_commit)
-        update_password(user, form.password.data)
-        do_flash(*get_message('PASSWORD_RESET'))
-        login_user(user)
-        return redirect(get_url(_security.post_reset_view) or
-                        get_url(_security.post_login_view))
+    password = form.password.data
+    if form.validate_on_submit(): 
+        if verify_password(password, user.password):
+           do_flash(*get_message('PASSWORD_IS_THE_SAME'))
+        else:
+           after_this_request(_commit)
+           update_password(user, password)
+           #do_flash(*get_message('PASSWORD_RESET'))
+           #login_user(user)
+           #return redirect(get_url(_security.post_reset_view) or
+           #                get_url(_security.post_login_view))
+           return redirect(get_url(_security.post_login_view))
 
     return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                                      reset_password_form=form,

@@ -20,6 +20,7 @@ from werkzeug.local import LocalProxy
 
 from .confirmable import requires_confirmation
 from .utils import verify_and_update_password, get_message, config_value, validate_redirect_url
+import re
 
 # const
 MAX_FAILED_LOGIN_COUNT = 5
@@ -50,6 +51,17 @@ class ValidatorMixin(object):
             self.message = get_message(self.message)[0]
         return super(ValidatorMixin, self).__call__(form, field)
 
+class AlphaNumeric():
+   def __init__(self, message=None):
+      self.message = message
+
+   def __call__(self, form, field):
+      password = field.data
+      alpha_error = re.search(r"[A-Za-z]", password) is None
+      digit_error = re.search(r"\d", password) is None
+      if alpha_error or digit_error:
+            msg = get_message('PASSWORD_REQUIRE_ALPHANUMERIC')[0]
+            raise ValidationError(msg)
 
 class EqualTo(ValidatorMixin, validators.EqualTo):
     pass
@@ -67,10 +79,12 @@ class Length(ValidatorMixin, validators.Length):
     pass
 
 
+
 email_required = Required(message='EMAIL_NOT_PROVIDED')
 email_validator = Email(message='INVALID_EMAIL_ADDRESS')
 password_required = Required(message='PASSWORD_NOT_PROVIDED')
-password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
+password_length = Length(min=7, max=128, message='PASSWORD_INVALID_LENGTH')
+password_alphanumeric = AlphaNumeric(message='PASSWORD_REQUIRE_ALPHANUMERIC')
 
 
 def get_form_field_label(key):
@@ -123,7 +137,7 @@ class PasswordFormMixin():
 class NewPasswordFormMixin():
     password = PasswordField(
         get_form_field_label('password'),
-        validators=[password_required, password_length])
+        validators=[password_required, password_length, password_alphanumeric])
 
 
 class PasswordConfirmFormMixin():
@@ -223,25 +237,25 @@ class LoginForm(Form, NextFormMixin):
             return False
 
         if self.email.data.strip() == '':
-            self.email.errors.append(get_message('EMAIL_NOT_PROVIDED')[0])
+            self.email.errors.append(get_message('LOGIN_ERROR')[0])
             return False
 
         self.user = _datastore.get_user(self.email.data)
 
         if self.user is None:
-            self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
+            self.email.errors.append(get_message('LOGIN_ERROR')[0])
             return False
         if self.user.failed_login_count >= MAX_FAILED_LOGIN_COUNT - 1:
             self.password.errors.append(get_message('TOO_MANY_FAILED_LOGINS')[0])
             return False
         if self.password.data.strip() == '':
-            self.password.errors.append(get_message('PASSWORD_NOT_PROVIDED')[0])
+            self.password.errors.append(get_message('LOGIN_ERROR')[0])
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
             return False
         if not verify_and_update_password(self.password.data, self.user):
-            self.password.errors.append(get_message('INVALID_PASSWORD')[0])
+            self.password.errors.append(get_message('LOGIN_ERROR')[0])
             return False
         if requires_confirmation(self.user):
             self.email.errors.append(get_message('CONFIRMATION_REQUIRED')[0])
@@ -265,9 +279,8 @@ class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
             self.next.data = request.args.get('next', '')
 
 
-class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
+class ResetPasswordForm(Form, NewPasswordFormMixin):
     """The default reset password form"""
-
     submit = SubmitField(get_form_field_label('reset_password'))
 
 

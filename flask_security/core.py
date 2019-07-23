@@ -155,6 +155,8 @@ _default_messages = {
         'No password is set for this user', 'error'),
     'PASSWORD_INVALID_LENGTH': (
         'Password must be at least 6 characters', 'error'),
+    'PASSWORD_REQUIRE_ALPHANUMERIC':(
+        'Password must contain alphanumeric charaters', 'error'),
     'USER_DOES_NOT_EXIST': (
         'Specified user does not exist', 'error'),
     'INVALID_PASSWORD': (
@@ -172,6 +174,8 @@ _default_messages = {
         'Please log in to access this page.', 'info'),
     'REFRESH': (
         'Please reauthenticate to access this page.', 'info'),
+    'LOGIN_ERROR': (
+        'Unable to login: please verify email and/or password.', 'error'),
     'TOO_MANY_FAILED_LOGINS': (
         'Too many failed logins, please email support@qos.vc to unlock account.', 'error'),
 }
