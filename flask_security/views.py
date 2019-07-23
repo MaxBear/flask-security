@@ -298,12 +298,10 @@ def reset_password(token):
         else:
            after_this_request(_commit)
            update_password(user, password)
-           #do_flash(*get_message('PASSWORD_RESET'))
-           #login_user(user)
-           #return redirect(get_url(_security.post_reset_view) or
-           #                get_url(_security.post_login_view))
-           return redirect(get_url(_security.post_login_view))
-
+           do_flash(*get_message('PASSWORD_RESET'))
+           login_user(user)
+           return redirect(get_url(_security.post_reset_view) or
+                           get_url(_security.post_login_view))
     return _security.render_template(config_value('RESET_PASSWORD_TEMPLATE'),
                                      reset_password_form=form,
                                      reset_password_token=token,
