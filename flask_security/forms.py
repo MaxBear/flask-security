@@ -22,6 +22,9 @@ from wtforms import BooleanField, Field, HiddenField, PasswordField, \
 from .confirmable import requires_confirmation
 from .utils import _, _datastore, config_value, get_message, hash_password, \
     localize_callback, url_for_security, validate_redirect_url
+import re
+
+MAX_FAILED_LOGIN_COUNT = 5
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -48,6 +51,19 @@ class ValidatorMixin(object):
         return super(ValidatorMixin, self).__call__(form, field)
 
 
+class AlphaNumeric():
+   def __init__(self, message=None):
+      self.message = message
+
+   def __call__(self, form, field):
+      password = field.data
+      alpha_error = re.search(r"[A-Za-z]", password) is None
+      digit_error = re.search(r"\d", password) is None
+      if alpha_error or digit_error:
+            msg = get_message(self.message)[0]
+            raise ValidationError(msg)
+
+
 class EqualTo(ValidatorMixin, validators.EqualTo):
     pass
 
@@ -67,7 +83,8 @@ class Length(ValidatorMixin, validators.Length):
 email_required = Required(message='EMAIL_NOT_PROVIDED')
 email_validator = Email(message='INVALID_EMAIL_ADDRESS')
 password_required = Required(message='PASSWORD_NOT_PROVIDED')
-password_length = Length(min=6, max=128, message='PASSWORD_INVALID_LENGTH')
+password_length = Length(min=7, max=128, message='PASSWORD_INVALID_LENGTH')
+password_alphanumeric = AlphaNumeric(message='PASSWORD_REQUIRE_ALPHANUMERIC')
 
 
 def get_form_field_label(key):
@@ -120,7 +137,7 @@ class PasswordFormMixin():
 class NewPasswordFormMixin():
     password = PasswordField(
         get_form_field_label('password'),
-        validators=[password_required, password_length])
+        validators=[password_required, password_length, password_alphanumeric])
 
 
 class PasswordConfirmFormMixin():
@@ -235,6 +252,9 @@ class LoginForm(Form, NextFormMixin):
             self.email.errors.append(get_message('USER_DOES_NOT_EXIST')[0])
             # Reduce timing variation between existing and non-existung users
             hash_password(self.password.data)
+            return False
+        if self.user.failed_login_count >= MAX_FAILED_LOGIN_COUNT - 1:
+            self.password.errors.append(get_message('TOO_MANY_FAILED_LOGINS')[0])
             return False
         if not self.user.password:
             self.password.errors.append(get_message('PASSWORD_NOT_SET')[0])
