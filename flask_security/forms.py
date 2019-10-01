@@ -266,7 +266,7 @@ class RegisterForm(ConfirmRegisterForm, PasswordConfirmFormMixin,
             self.next.data = request.args.get('next', '')
 
 
-class ResetPasswordForm(Form, NewPasswordFormMixin, PasswordConfirmFormMixin):
+class ResetPasswordForm(Form, NewPasswordFormMixin):
     """The default reset password form"""
 
     submit = SubmitField(get_form_field_label('reset_password'))
