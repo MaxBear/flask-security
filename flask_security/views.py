@@ -294,10 +294,8 @@ def reset_password(token):
         do_flash(*get_message('INVALID_RESET_PASSWORD_TOKEN'))
 
     if expired:
-        send_reset_password_instructions(user)
         do_flash(*get_message('PASSWORD_RESET_EXPIRED', email=user.email,
                               within=_security.reset_password_within))
-        return 
 
     if invalid or expired:
         return redirect(url_for('forgot_password'))
