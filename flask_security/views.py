@@ -256,7 +256,7 @@ def confirm_email(token):
 def forgot_password():
     """View function that handles a forgotten password request."""
 
-    from smtplib import SMTPAuthenticationError
+    from smtplib import SMTPAuthenticationError, SMTPDataError
 
     form_class = _security.forgot_password_form
 
@@ -274,6 +274,9 @@ def forgot_password():
         except SMTPAuthenticationError:
             if request.json is None:
                 do_flash(*get_message('FAILD_TO_SEND_PASSWORD_RESET_EMAIL', email=form.user.email))
+        except SMTPDataError:
+            if request.json is None:
+                do_flash(*get_message('FAILD_TO_SEND_PASSWORD_RESET_EMAIL_SMTP_DATA', email=form.user.email))
 
     if request.is_json:
         return _render_json(form, include_user=False)
