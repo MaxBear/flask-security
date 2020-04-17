@@ -24,7 +24,7 @@ from .utils import _, _datastore, config_value, get_message, hash_password, \
     localize_callback, url_for_security, validate_redirect_url
 import re
 
-MAX_FAILED_LOGIN_COUNT = 5
+MAX_FAILED_LOGIN_COUNT = 10
 
 lazy_gettext = make_lazy_gettext(lambda: localize_callback)
 
@@ -83,7 +83,7 @@ class Length(ValidatorMixin, validators.Length):
 email_required = Required(message='EMAIL_NOT_PROVIDED')
 email_validator = Email(message='INVALID_EMAIL_ADDRESS')
 password_required = Required(message='PASSWORD_NOT_PROVIDED')
-password_length = Length(min=7, max=128, message='PASSWORD_INVALID_LENGTH')
+password_length = Length(min=8, max=64, message='PASSWORD_INVALID_LENGTH')
 password_alphanumeric = AlphaNumeric(message='PASSWORD_REQUIRE_ALPHANUMERIC')
 
 
