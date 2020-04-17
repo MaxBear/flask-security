@@ -211,8 +211,7 @@ _default_messages = {
         _('You successfully reset your password and you have been logged in '
           'automatically.'), 'success'),
     'PASSWORD_IS_THE_SAME': (
-        _('Your new password must be different than your previous password.'),
-        'error'),
+        _('Your new password must be different from your previous password'), 'error'),
     'PASSWORD_CHANGE': (
         _('You successfully changed your password.'), 'success'),
     'LOGIN': (
