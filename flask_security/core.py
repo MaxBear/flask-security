@@ -196,7 +196,7 @@ _default_messages = {
     'PASSWORD_NOT_SET': (
         _('No password is set for this user'), 'error'),
     'PASSWORD_INVALID_LENGTH': (
-        _('Password must be at least 7 characters'), 'error'),
+        _('Password must be at least 8 characters and at most 64 characters'), 'error'),
     'PASSWORD_REQUIRE_ALPHANUMERIC': (
         _('Password must contain alphanumeric charaters'), 'error'),
     'USER_DOES_NOT_EXIST': (
