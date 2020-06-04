@@ -103,6 +103,10 @@ def failed_login(user):
     user.failed_login_count += 1
     res = _datastore.put(user)
 
+def reset_login(user):
+    user.failed_login_count = 0
+    res = _datastore.put(user)
+
 def logout_user():
     """Logs out the current.
 

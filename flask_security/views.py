@@ -28,7 +28,7 @@ from .utils import config_value, do_flash, get_message, \
     get_post_login_redirect, get_post_logout_redirect, \
     get_post_register_redirect, get_url, login_user, logout_user, \
     slash_url_suffix
-from .utils import verify_password, failed_login 
+from .utils import verify_password, failed_login, reset_login 
 
 # Convenient references
 _security = LocalProxy(lambda: current_app.extensions['security'])
@@ -309,6 +309,7 @@ def reset_password(token):
             after_this_request(_commit)
             update_password(user, form.password.data)
             do_flash(*get_message('PASSWORD_RESET'))
+            reset_login()
             return redirect(get_url(_security.post_reset_view) or
                 get_url(_security.login_url))
 
