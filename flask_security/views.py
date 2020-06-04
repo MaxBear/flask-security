@@ -309,7 +309,6 @@ def reset_password(token):
             after_this_request(_commit)
             update_password(user, form.password.data)
             do_flash(*get_message('PASSWORD_RESET'))
-            login_user(user)
             return redirect(get_url(_security.post_reset_view) or
                 get_url(_security.login_url))
 

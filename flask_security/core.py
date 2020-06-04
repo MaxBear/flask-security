@@ -208,8 +208,7 @@ _default_messages = {
     'FORGOT_PASSWORD': (
         _('Forgot password?'), 'info'),
     'PASSWORD_RESET': (
-        _('You successfully reset your password and you have been logged in '
-          'automatically.'), 'success'),
+        _('You have successfully reset your password.'), 'success'),
     'PASSWORD_IS_THE_SAME': (
         _('Your new password must be different from your previous password'), 'error'),
     'PASSWORD_CHANGE': (
